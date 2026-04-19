@@ -1,0 +1,75 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --page-bg: #f8f4ec;
+  --page-accent: #d3ecef;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Manrope", sans-serif;
+  background:
+    radial-gradient(circle at 10% 15%, rgba(75, 185, 198, 0.18), transparent 40%),
+    radial-gradient(circle at 90% 85%, rgba(242, 141, 47, 0.22), transparent 38%),
+    linear-gradient(150deg, var(--page-bg) 10%, #ffffff 85%);
+  color: #13323a;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Space Grotesk", sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.card-surface {
+  @apply bg-white/85 backdrop-blur border border-brand-100 rounded-2xl shadow-panel;
+}
+
+.input-base {
+  @apply w-full rounded-xl border border-brand-200 bg-white px-3 py-2 text-sm text-brand-900 placeholder:text-brand-400 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-xl bg-brand-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-xl bg-sand-100 px-4 py-2 text-sm font-semibold text-sand-800 transition hover:bg-sand-200;
+}
+
+.btn-danger {
+  @apply inline-flex items-center justify-center rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-700;
+}
+
+.table-base {
+  @apply min-w-full text-left text-sm;
+}
+
+.table-base thead {
+  @apply bg-brand-50 text-brand-700;
+}
+
+.table-base th,
+.table-base td {
+  @apply px-4 py-3;
+}
+
+.table-base tbody tr {
+  @apply border-b border-brand-100;
+}
+
+.animate-stagger > * {
+  animation: floatIn 0.45s ease-out both;
+}

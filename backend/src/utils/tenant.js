@@ -1,0 +1,1 @@
+export const resolveTenantId = (userLike) => userLike?.tenant?._id || userLike?.tenant || null;
