@@ -55,8 +55,8 @@ const MainLayout = () => {
     <div className="min-h-screen lg:flex">
       <Sidebar user={user} onLogout={logout} />
 
-      <main className="w-full flex-1 px-4 py-4 md:px-6 lg:px-8">
-        <nav className="mb-3 flex gap-2 overflow-auto lg:hidden">
+      <main className="w-full flex-1 px-4 py-5 md:px-6 lg:px-8">
+        <nav className="mb-4 flex gap-2 overflow-auto lg:hidden">
           {[
             { to: "/dashboard", label: "Dashboard" },
             { to: "/products", label: "Products" },
@@ -67,8 +67,10 @@ const MainLayout = () => {
               key={item.to}
               to={item.to}
               className={({ isActive }) => [
-                "whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold",
-                isActive ? "bg-brand-700 text-white" : "bg-white text-brand-700 border border-brand-200",
+                "whitespace-nowrap rounded-xl px-3 py-2 text-sm font-semibold",
+                isActive
+                  ? "bg-brand-700 text-white shadow-[0_8px_20px_rgba(15,100,116,0.25)]"
+                  : "border border-slate-200 bg-white text-slate-700",
               ].join(" ")}
             >
               {item.label}
@@ -76,9 +78,11 @@ const MainLayout = () => {
           ))}
         </nav>
 
-        <Topbar notifications={notifications} onMarkRead={handleMarkRead} />
-        <div className="animate-stagger">
-          <Outlet />
+        <div className="mx-auto w-full max-w-[1600px]">
+          <Topbar notifications={notifications} onMarkRead={handleMarkRead} />
+          <div className="animate-stagger">
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>

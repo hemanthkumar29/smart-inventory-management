@@ -16,6 +16,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           toastOptions={{
             style: {
               fontFamily: "Manrope, sans-serif",
+              borderRadius: "12px",
+              border: "1px solid #e2e8f0",
+              background: "#ffffff",
+              color: "#0f172a",
             },
           }}
         />

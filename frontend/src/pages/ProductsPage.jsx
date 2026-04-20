@@ -60,6 +60,14 @@ const ProductsPage = () => {
     () => Array.from(new Set(products.map((item) => item.category).filter(Boolean))),
     [products],
   );
+  const lowStockCount = useMemo(
+    () => products.filter((item) => item.quantity <= item.lowStockThreshold).length,
+    [products],
+  );
+  const totalUnits = useMemo(
+    () => products.reduce((sum, item) => sum + Number(item.quantity || 0), 0),
+    [products],
+  );
 
   const loadProducts = useCallback(async () => {
     try {
@@ -244,6 +252,23 @@ const ProductsPage = () => {
 
   return (
     <div className="space-y-5">
+      <section className="card-surface p-5">
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-600">Catalog</p>
+            <h3 className="mt-1 text-xl font-bold text-slate-900">Inventory operations</h3>
+            <p className="text-sm text-slate-600">
+              Track stock movement, maintain product data quality, and react quickly to low inventory.
+            </p>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-3">
+            <span className="metric-chip">Visible SKUs: {products.length}</span>
+            <span className="metric-chip">Low stock: {lowStockCount}</span>
+            <span className="metric-chip">Units in view: {totalUnits}</span>
+          </div>
+        </div>
+      </section>
+
       <div className="card-surface p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 lg:items-center">
@@ -271,7 +296,7 @@ const ProductsPage = () => {
               ))}
             </select>
 
-            <label className="flex items-center gap-2 rounded-xl border border-brand-200 bg-white px-3 py-2 text-sm text-brand-700">
+            <label className="flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700">
               <input
                 type="checkbox"
                 checked={lowStockOnly}
@@ -317,14 +342,14 @@ const ProductsPage = () => {
                         <img
                           src={product.image.url}
                           alt={product.name}
-                          className="h-10 w-10 rounded-lg object-cover"
+                          className="h-10 w-10 rounded-lg border border-slate-200 object-cover"
                         />
                       ) : (
-                        <div className="h-10 w-10 rounded-lg bg-brand-100" />
+                        <div className="h-10 w-10 rounded-lg border border-slate-200 bg-slate-100" />
                       )}
                       <div>
-                        <p className="font-semibold text-brand-900">{product.name}</p>
-                        <p className="text-xs text-brand-500">{product.supplier?.name || "No supplier"}</p>
+                        <p className="font-semibold text-slate-900">{product.name}</p>
+                        <p className="text-xs text-slate-500">{product.supplier?.name || "No supplier"}</p>
                       </div>
                     </div>
                   </td>
@@ -353,7 +378,7 @@ const ProductsPage = () => {
 
               {products.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center text-brand-500">No products found</td>
+                  <td colSpan={7} className="text-center text-slate-500">No products found</td>
                 </tr>
               ) : null}
             </tbody>

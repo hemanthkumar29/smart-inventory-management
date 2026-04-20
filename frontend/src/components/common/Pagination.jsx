@@ -22,7 +22,9 @@ const Pagination = ({ meta, onPageChange }) => {
           type="button"
           className={[
             "h-9 min-w-9 rounded-lg px-2 text-sm font-semibold",
-            meta.page === pageNo ? "bg-brand-700 text-white" : "bg-white text-brand-700 border border-brand-200",
+            meta.page === pageNo
+              ? "bg-brand-700 text-white shadow-[0_8px_20px_rgba(15,100,116,0.25)]"
+              : "border border-slate-300 bg-white text-slate-700",
           ].join(" ")}
           onClick={() => onPageChange(pageNo)}
         >

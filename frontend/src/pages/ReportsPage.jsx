@@ -49,6 +49,23 @@ const ReportsPage = () => {
     <div className="space-y-5">
       <ErrorMessage message={error} />
 
+      <section className="card-surface p-5">
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-600">Analytics</p>
+            <h3 className="mt-1 text-xl font-bold text-slate-900">Performance reporting</h3>
+            <p className="text-sm text-slate-600">
+              Analyze sales and inventory health over custom date ranges with near real-time updates.
+            </p>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-3">
+            <span className="metric-chip">Revenue: {formatCurrency(salesReport.summary.totalRevenue || 0)}</span>
+            <span className="metric-chip">Orders: {salesReport.summary.totalOrders || 0}</span>
+            <span className="metric-chip">SKUs tracked: {inventoryReport.length}</span>
+          </div>
+        </div>
+      </section>
+
       <div className="card-surface p-4">
         <div className="grid gap-3 md:grid-cols-4 md:items-end">
           <div>
@@ -65,16 +82,16 @@ const ReportsPage = () => {
 
       <section className="grid gap-4 sm:grid-cols-3">
         <div className="card-surface p-4">
-          <p className="text-sm text-brand-600">Total Revenue</p>
-          <p className="text-2xl font-bold text-brand-900">{formatCurrency(salesReport.summary.totalRevenue || 0)}</p>
+          <p className="text-sm text-slate-600">Total Revenue</p>
+          <p className="text-2xl font-bold text-slate-900">{formatCurrency(salesReport.summary.totalRevenue || 0)}</p>
         </div>
         <div className="card-surface p-4">
-          <p className="text-sm text-brand-600">Total Orders</p>
-          <p className="text-2xl font-bold text-brand-900">{salesReport.summary.totalOrders || 0}</p>
+          <p className="text-sm text-slate-600">Total Orders</p>
+          <p className="text-2xl font-bold text-slate-900">{salesReport.summary.totalOrders || 0}</p>
         </div>
         <div className="card-surface p-4">
-          <p className="text-sm text-brand-600">Average Order Value</p>
-          <p className="text-2xl font-bold text-brand-900">{formatCurrency(salesReport.summary.avgOrderValue || 0)}</p>
+          <p className="text-sm text-slate-600">Average Order Value</p>
+          <p className="text-2xl font-bold text-slate-900">{formatCurrency(salesReport.summary.avgOrderValue || 0)}</p>
         </div>
       </section>
 
@@ -87,26 +104,26 @@ const ReportsPage = () => {
         />
 
         <div className="card-surface p-4">
-          <h3 className="mb-3 text-base font-semibold text-brand-900">Payment Method Breakdown</h3>
+          <h3 className="mb-3 text-base font-semibold text-slate-900">Payment Method Breakdown</h3>
           <div className="space-y-2">
             {(salesReport.paymentBreakdown || []).map((entry) => (
-              <div key={entry._id} className="rounded-xl border border-brand-100 p-3">
-                <p className="font-semibold capitalize text-brand-900">{entry._id || "Unknown"}</p>
-                <p className="text-sm text-brand-600">
+              <div key={entry._id} className="rounded-xl border border-slate-200 p-3">
+                <p className="font-semibold capitalize text-slate-900">{entry._id || "Unknown"}</p>
+                <p className="text-sm text-slate-600">
                   {entry.orders} orders | {formatCurrency(entry.total)}
                 </p>
               </div>
             ))}
 
             {!(salesReport.paymentBreakdown || []).length ? (
-              <p className="text-sm text-brand-500">No payment data found for selected range</p>
+              <p className="text-sm text-slate-500">No payment data found for selected range</p>
             ) : null}
           </div>
         </div>
       </section>
 
       <div className="card-surface overflow-x-auto p-2">
-        <h3 className="px-3 py-2 text-lg font-semibold text-brand-900">Inventory Health Report</h3>
+        <h3 className="px-3 py-2 text-lg font-semibold text-slate-900">Inventory Health Report</h3>
         <table className="table-base">
           <thead>
             <tr>
@@ -132,7 +149,7 @@ const ReportsPage = () => {
 
             {inventoryReport.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center text-brand-500">No inventory data available</td>
+                <td colSpan={6} className="text-center text-slate-500">No inventory data available</td>
               </tr>
             ) : null}
           </tbody>

@@ -102,6 +102,10 @@ const OrdersPage = () => {
   }, 0), [form.items, productMap]);
 
   const total = useMemo(() => subtotal + Number(form.tax || 0) - Number(form.discount || 0), [subtotal, form.tax, form.discount]);
+  const selectedLineItems = useMemo(
+    () => form.items.filter((item) => Boolean(item.product)).length,
+    [form.items],
+  );
 
   const updateItem = (index, key, value) => {
     setForm((prev) => {
@@ -211,22 +215,40 @@ const OrdersPage = () => {
   };
 
   return (
-    <div className="grid gap-5 xl:grid-cols-[1.15fr_1fr]">
-      <div className="card-surface p-4">
+    <div className="space-y-5">
+      <section className="card-surface p-5">
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-600">Sales desk</p>
+            <h3 className="mt-1 text-xl font-bold text-slate-900">Checkout and billing</h3>
+            <p className="text-sm text-slate-600">
+              Build customer orders with live stock checks and download-ready invoices.
+            </p>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-3">
+            <span className="metric-chip">Sellable products: {products.length}</span>
+            <span className="metric-chip">Items selected: {selectedLineItems}</span>
+            <span className="metric-chip">Order total: {formatCurrency(total)}</span>
+          </div>
+        </div>
+      </section>
+
+      <div className="grid gap-5 xl:grid-cols-[1.15fr_1fr]">
+        <div className="card-surface p-4">
         <div className="flex items-center justify-between gap-3">
-          <h3 className="text-lg font-semibold text-brand-900">Create Sale Order</h3>
+          <h3 className="text-lg font-semibold text-slate-900">Create Sale Order</h3>
           <button type="button" className="btn-secondary" onClick={loadProducts}>
             Refresh Products
           </button>
         </div>
 
         {loadingCatalog ? (
-          <p className="mt-3 text-sm text-brand-600">Refreshing product catalog...</p>
+          <p className="mt-3 text-sm text-slate-600">Refreshing product catalog...</p>
         ) : null}
 
         <form className="mt-4 space-y-4" onSubmit={handleSubmitOrder}>
           {form.items.map((item, index) => (
-            <div key={`${item.product}-${index}`} className="grid gap-2 rounded-xl border border-brand-100 p-3 md:grid-cols-[1fr_130px_auto]">
+            <div key={`${item.product}-${index}`} className="grid gap-2 rounded-xl border border-slate-200 p-3 md:grid-cols-[1fr_130px_auto]">
               <select
                 className="input-base"
                 value={item.product}
@@ -259,7 +281,7 @@ const OrdersPage = () => {
           </button>
 
           {!products.length && !loadingCatalog ? (
-            <p className="text-sm text-brand-600">
+            <p className="text-sm text-slate-600">
               No sellable products found. Add products with stock from Product Management.
             </p>
           ) : null}
@@ -296,10 +318,10 @@ const OrdersPage = () => {
             </div>
           </div>
 
-          <div className="rounded-xl bg-brand-50 p-3">
-            <p className="text-sm text-brand-700">Subtotal: {formatCurrency(subtotal)}</p>
-            <p className="text-sm text-brand-700">Total: <span className="font-semibold">{formatCurrency(total)}</span></p>
-          </div>
+           <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+             <p className="text-sm text-slate-700">Subtotal: {formatCurrency(subtotal)}</p>
+             <p className="text-sm text-slate-700">Total: <span className="font-semibold">{formatCurrency(total)}</span></p>
+           </div>
 
           <button type="submit" className="btn-primary" disabled={creatingOrder}>
             {creatingOrder ? "Creating order..." : "Create Order"}
@@ -311,7 +333,7 @@ const OrdersPage = () => {
         <ErrorMessage message={error} />
 
         <div className="card-surface overflow-x-auto p-2">
-          <h3 className="px-3 py-2 text-lg font-semibold text-brand-900">Recent Orders</h3>
+          <h3 className="px-3 py-2 text-lg font-semibold text-slate-900">Recent Orders</h3>
 
           {loadingOrders ? (
             <Loader label="Loading orders..." />
@@ -329,8 +351,8 @@ const OrdersPage = () => {
                 {orders.map((order) => (
                   <tr key={order._id}>
                     <td>
-                      <p className="font-semibold text-brand-900">{order.orderNumber}</p>
-                      <p className="text-xs text-brand-500">{order.items.length} items</p>
+                      <p className="font-semibold text-slate-900">{order.orderNumber}</p>
+                      <p className="text-xs text-slate-500">{order.items.length} items</p>
                     </td>
                     <td>{formatDate(order.createdAt)}</td>
                     <td>{formatCurrency(order.total)}</td>
@@ -344,7 +366,7 @@ const OrdersPage = () => {
 
                 {orders.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="text-center text-brand-500">No orders found</td>
+                    <td colSpan={4} className="text-center text-slate-500">No orders found</td>
                   </tr>
                 ) : null}
               </tbody>
@@ -353,6 +375,7 @@ const OrdersPage = () => {
         </div>
 
         <Pagination meta={meta} onPageChange={setPage} />
+      </div>
       </div>
     </div>
   );

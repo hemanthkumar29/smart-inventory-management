@@ -1,9 +1,9 @@
 const styles = {
-  healthy: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  low: "bg-amber-100 text-amber-800 border-amber-200",
-  warning: "bg-amber-100 text-amber-800 border-amber-200",
-  critical: "bg-rose-100 text-rose-700 border-rose-200",
-  info: "bg-brand-100 text-brand-700 border-brand-200",
+  healthy: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  low: "border-amber-200 bg-amber-50 text-amber-800",
+  warning: "border-amber-200 bg-amber-50 text-amber-800",
+  critical: "border-rose-200 bg-rose-50 text-rose-700",
+  info: "border-brand-200 bg-brand-50 text-brand-700",
 };
 
 const Badge = ({ value }) => (
