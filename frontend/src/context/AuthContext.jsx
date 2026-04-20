@@ -4,6 +4,24 @@ import { fetchMe, loginUser, registerUser } from "../services/authService";
 
 const AuthContext = createContext(null);
 
+const getApiErrorMessage = (error, fallback = "") => {
+  const details = error?.response?.data?.errors;
+  if (Array.isArray(details) && details.length > 0) {
+    return details[0]?.message || fallback;
+  }
+
+  return error?.response?.data?.message || fallback;
+};
+
+const isDuplicateEmailRegistrationError = (error) => {
+  if (error?.response?.status !== 409) {
+    return false;
+  }
+
+  const message = getApiErrorMessage(error, "").toLowerCase();
+  return message.includes("email") || message.includes("already exists") || message.includes("duplicate");
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("smart_inventory_token"));
@@ -30,9 +48,28 @@ export const AuthProvider = ({ children }) => {
   }, [persistAuth]);
 
   const register = useCallback(async (payload) => {
-    const result = await registerUser(payload);
-    persistAuth(result.token, result.user);
-    return result.user;
+    try {
+      const result = await registerUser(payload);
+      persistAuth(result.token, result.user);
+      return {
+        user: result.user,
+        wasRecovered: false,
+      };
+    } catch (error) {
+      if (!isDuplicateEmailRegistrationError(error)) {
+        throw error;
+      }
+
+      const loginResult = await loginUser({
+        email: payload.email,
+        password: payload.password,
+      });
+      persistAuth(loginResult.token, loginResult.user);
+      return {
+        user: loginResult.user,
+        wasRecovered: true,
+      };
+    }
   }, [persistAuth]);
 
   const logout = useCallback(() => {

@@ -5,6 +5,15 @@ import ErrorMessage from "../components/common/ErrorMessage";
 import useAuth from "../hooks/useAuth";
 import { validateEmail, validatePassword } from "../utils/validators";
 
+const getApiErrorMessage = (error, fallback) => {
+  const details = error?.response?.data?.errors;
+  if (Array.isArray(details) && details.length > 0) {
+    return details[0]?.message || fallback;
+  }
+
+  return error?.response?.data?.message || fallback;
+};
+
 const RegisterPage = () => {
   const navigate = useNavigate();
   const { register, isAuthenticated } = useAuth();
@@ -65,15 +74,18 @@ const RegisterPage = () => {
 
     try {
       setLoading(true);
-      const user = await register({
+      const registration = await register({
         name: formState.name,
         email: formState.email,
         password: formState.password,
         companyName: formState.companyName.trim() || undefined,
         companyCode: normalizedCompanyCode || undefined,
       });
+      const user = registration.user;
 
-      if (normalizedCompanyCode) {
+      if (registration.wasRecovered) {
+        toast.success("This account already existed, so we signed you in directly");
+      } else if (normalizedCompanyCode) {
         toast.success("Joined enterprise workspace successfully");
       } else {
         const tenantCode = user?.tenant?.code;
@@ -82,7 +94,7 @@ const RegisterPage = () => {
 
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
+      setError(getApiErrorMessage(err, "Registration failed"));
     } finally {
       setLoading(false);
     }

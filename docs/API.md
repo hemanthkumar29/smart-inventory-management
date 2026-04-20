@@ -45,6 +45,7 @@ Body:
 Rules:
 - If `companyCode` is provided, user joins that enterprise as `staff`.
 - If `companyCode` is not provided, `companyName` is required and a new enterprise is created with user role `admin`.
+- If the same email is retried with the same password (for example after a network interruption), the API returns a successful signed-in response instead of failing the retry.
 
 ### POST /auth/login
 Login user.

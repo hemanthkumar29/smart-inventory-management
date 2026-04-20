@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import User from "../models/User.js";
 import Tenant from "../models/Tenant.js";
 import ApiError from "../utils/ApiError.js";
@@ -13,6 +14,49 @@ import {
 } from "../services/tenantService.js";
 import { resolveTenantId } from "../utils/tenant.js";
 
+const isDuplicateEmailError = (error) => {
+  if (error?.code !== 11000) {
+    return false;
+  }
+
+  if (error?.keyPattern?.email || error?.keyValue?.email) {
+    return true;
+  }
+
+  return String(error?.message || "").includes("email_1 dup key");
+};
+
+const sendAuthResponseForExistingUser = async ({ res, user, message }) => {
+  if (!user.isActive) {
+    throw new ApiError(403, "This account is inactive");
+  }
+
+  await ensureUserHasTenant(user);
+
+  const existingTenant = await Tenant.findById(user.tenant).select("isActive");
+  if (!existingTenant || !existingTenant.isActive) {
+    throw new ApiError(403, "Your enterprise workspace is inactive");
+  }
+
+  user.lastLoginAt = new Date();
+  await user.save();
+
+  const safeUser = await User.findById(user._id)
+    .select("-password")
+    .populate("tenant", "name code isActive");
+  const token = signJwt({ userId: user._id, role: user.role });
+
+  res.status(200).json(
+    ApiResponse.success({
+      message,
+      data: {
+        token,
+        user: safeUser,
+      },
+    }),
+  );
+};
+
 export const register = asyncHandler(async (req, res) => {
   const {
     name,
@@ -21,14 +65,26 @@ export const register = asyncHandler(async (req, res) => {
     companyName,
     companyCode,
   } = req.body;
+  const normalizedName = String(name || "").trim();
+  const normalizedEmail = String(email || "").trim().toLowerCase();
 
-  const exists = await User.findOne({ email });
-  if (exists) {
-    throw new ApiError(409, "User with this email already exists");
+  const existingUser = await User.findOne({ email: normalizedEmail }).select("+password");
+  if (existingUser) {
+    const passwordMatches = await existingUser.comparePassword(password);
+    if (!passwordMatches) {
+      throw new ApiError(409, "User with this email already exists");
+    }
+    await sendAuthResponseForExistingUser({
+      res,
+      user: existingUser,
+      message: "Account already exists. Signed you in successfully",
+    });
+    return;
   }
 
   const normalizedCompanyCode = normalizeTenantCode(companyCode);
   const isJoinFlow = Boolean(normalizedCompanyCode);
+  const userId = new mongoose.Types.ObjectId();
 
   let tenant = null;
   if (isJoinFlow) {
@@ -46,14 +102,18 @@ export const register = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Enterprise name is required when no enterprise code is provided");
     }
 
-    tenant = await createTenantWithUniqueCode({ name: normalizedCompanyName });
+    tenant = await createTenantWithUniqueCode({
+      name: normalizedCompanyName,
+      createdBy: userId,
+    });
   }
 
   let user;
   try {
     user = await User.create({
-      name,
-      email,
+      _id: userId,
+      name: normalizedName,
+      email: normalizedEmail,
       password,
       role: isJoinFlow ? USER_ROLES.STAFF : USER_ROLES.ADMIN,
       tenant: tenant._id,
@@ -63,12 +123,24 @@ export const register = asyncHandler(async (req, res) => {
       await Tenant.deleteOne({ _id: tenant._id });
     }
 
-    throw error;
-  }
+    if (isDuplicateEmailError(error)) {
+      const concurrentUser = await User.findOne({ email: normalizedEmail }).select("+password");
+      if (concurrentUser) {
+        const passwordMatches = await concurrentUser.comparePassword(password);
+        if (passwordMatches) {
+          await sendAuthResponseForExistingUser({
+            res,
+            user: concurrentUser,
+            message: "Registration retried successfully. Signed you in",
+          });
+          return;
+        }
+      }
 
-  if (!tenant.createdBy) {
-    tenant.createdBy = user._id;
-    await tenant.save();
+      throw new ApiError(409, "User with this email already exists");
+    }
+
+    throw error;
   }
 
   const safeUser = await User.findById(user._id)
